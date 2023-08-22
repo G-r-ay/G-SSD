@@ -3,12 +3,13 @@ import pandas as pd
 import datetime 
 import os
 import time
+import streamlit as st
 # from dotenv import load_dotenv
 # load_dotenv()
 
 
-OPTIMISIM_SCAN= "NMQUZWPNZIPU2WUUQWGA4G3E5DI5SVY3DR"
-api_key = OPTIMISIM_SCAN
+api_key = st.secrets['api_key']
+print(api_key)
 url = "https://api-optimistic.etherscan.io/api"
 
 #---------------------------------------------------------------------------------------------------------------
