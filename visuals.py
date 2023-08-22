@@ -1,6 +1,5 @@
 import streamlit as st
 import json
-import locale
 import pandas as pd
 import random
 import requests
@@ -71,7 +70,6 @@ st.markdown(
 )
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 amounts = [random.randint(1000, 1000000) for _ in range(4)]
 
