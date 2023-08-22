@@ -3,8 +3,8 @@ import pandas as pd
 import datetime 
 import os
 import time
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 
 OPTIMISIM_SCAN= os.getenv('OPTIMISIM_SCAN')
