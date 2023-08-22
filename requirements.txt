@@ -1,7 +1,5 @@
 pandas
 plotly
-locale
 streamlit
 scikit-learn
-python-dotenv
 requests
