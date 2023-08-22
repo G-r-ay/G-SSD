@@ -83,7 +83,7 @@ with col1:
         text-align: left;
     """
     try:
-        num_sybils = data_main['status'].value_counts()['Sybil']
+        num_sybils = voter_data['status'].value_counts()['Sybil']
     except KeyError:
         num_sybils = 0
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Total Number Of Identified Sybils</p><h2 style="padding-left: 10px;color: white;"><b>{num_sybils}</b></h2></div>', unsafe_allow_html=True)
@@ -106,8 +106,8 @@ with col3:
         text-align: left;
     """
 
-    unique_voters = data_main.drop_duplicates('voter')
-    class_counts = unique_voters['status'].value_counts()
+
+    class_counts = voter_data['status'].value_counts()
     desired_class_count = class_counts.get('Sybil', 0)
     total_instances = len(unique_voters)
     sybil_percentage = (desired_class_count / total_instances) * 100
