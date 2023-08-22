@@ -374,10 +374,10 @@ with col1:
     labels = ['Sybil', 'Non-Sybil']
 
     try:
-        Sybils = data_main['status'].value_counts()['Sybil']
+        Sybils = voter_data['status'].value_counts()['Sybil']
     except KeyError:
         Sybils = 0
-    Non_sybils = data_main['status'].value_counts()['Non-Sybil']
+    Non_sybils = voter_data['status'].value_counts()['Non-Sybil']
     values = [Sybils, Non_sybils]  # Adjust the values as needed
     colors = ['#00A896', '#02C39A']  # Define your two desired colors
 
