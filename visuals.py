@@ -109,7 +109,7 @@ with col3:
 
     class_counts = voter_data['status'].value_counts()
     desired_class_count = class_counts.get('Sybil', 0)
-    total_instances = len(unique_voters)
+    total_instances = len(voter_data)
     sybil_percentage = (desired_class_count / total_instances) * 100
     sybil_percentage = "{:,.2f}".format(sybil_percentage)
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Percentage of Sybil Voters</p><h2 style="padding-left: 10px;color: white;"><b>{sybil_percentage}%</b></h2></div>', unsafe_allow_html=True)
