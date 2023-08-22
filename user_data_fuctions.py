@@ -7,7 +7,7 @@ import time
 # load_dotenv()
 
 
-OPTIMISIM_SCAN= os.getenv('OPTIMISIM_SCAN')
+OPTIMISIM_SCAN= "NMQUZWPNZIPU2WUUQWGA4G3E5DI5SVY3DR"
 api_key = OPTIMISIM_SCAN
 url = "https://api-optimistic.etherscan.io/api"
 
