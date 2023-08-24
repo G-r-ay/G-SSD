@@ -8,7 +8,7 @@ from similarity_code import get_json
 
 
 #---------------------------------------------------------------------------------------------------------------
-github_token= st.secrets['github_token']
+github_token= st.secrets["github_token"]
 #---------------------------------------------------------------------------------------------------------------
 def update_repo_data(round_id,new_data):
     existing_file_url = f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.csv'
