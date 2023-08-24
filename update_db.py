@@ -47,7 +47,7 @@ def update_repo_data(round_id,new_data):
     else:
         print("Error getting file info:", response.text)
 #---------------------------------------------------------------------------------------------------------------
-def overwrite_github_json(round_id,json_file):
+def overwrite_github_json(json_file,round_id):
     url = f"https://api.github.com/repos/G-r-ay/G-SSD/contents/archives/{round_id}_sybil_cluster.json"
     
     headers = {
