@@ -114,9 +114,9 @@ with col4:
     max_length = 0
 
     # Iterate through the dictionary's keys and values
-    for key, value in data_json.items():
+    for cluster, value in data_json.items():
         if len(value) > max_length:
-            max_key = key
+            max_key = cluster
             max_length = len(value)
     subscript = '<sup>EOA</sup>'
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Largest Cluster Size</p><h2 style="padding-left: 10px;color: white;"><b>{max_length}</b> {subscript}</h2></div>', unsafe_allow_html=True)
