@@ -3,16 +3,16 @@ import json
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
 address = set()
-similar_rows_json = {}
+
 #---------------------------------------------------------------------------------------------------------------
 
-def address_similarity(full_data):
+def address_similarity(full_data,round_id):
     MinMax = MinMaxScaler()
     data = MinMax.fit_transform(np.array(full_data[full_data.columns[1:]]))
 
     voter = full_data['voter'].values.reshape(-1, 1)
     data = np.hstack((voter, data))
-
+    similar_rows_json = {}
     similarity_matrix = cosine_similarity(data[:, 1:])
 
     threshold = 0.999
@@ -41,8 +41,6 @@ def address_similarity(full_data):
                 address.add(row[0])
         similar_rows_json[f"Cluster Group {i}"] = cluster_group
 
+    overwrite_github_json(similar_rows_json,round_id)
     return address
 #---------------------------------------------------------------------------------------------------------------
-
-def get_json():
-    return similar_rows_json
