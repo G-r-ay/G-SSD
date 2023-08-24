@@ -39,7 +39,7 @@ voter_data = data_main.drop_duplicates(subset='voter')
 url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
 response = requests.get(url)
 json_data = response.json()
-print(json_data)
+print(url)
 
 
 st.markdown('<link rel="stylesheet" href="styling.css">', unsafe_allow_html=True)
