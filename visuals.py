@@ -1,5 +1,6 @@
 import streamlit as st
 import json
+import locale
 import pandas as pd
 import random
 import requests
@@ -24,11 +25,6 @@ selected_round = st.sidebar.selectbox(
     "Select A Round",
     ("Climate Round", "Web3 Open Source Software","Web3 Community and Education")
 )
-data_mode = "Manual"
-data_mode = st.sidebar.selectbox(
-    "Select DataMode",
-    ("Manual", "Server")
-)
 
 if selected_round == 'Climate Round':
     round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
@@ -37,15 +33,12 @@ elif selected_round == 'Web3 Open Source Software':
 else:
     round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
 
-if data_mode == "Server":
-    data_main = checkUpKeep(round_id,data_mode)
-    voter_data = data_main.drop_duplicates(subset='voter')
-    with open("archives/sybil_clusters.json", "r") as json_file:
-        data_json = json.load(json_file)
-else:
-    data_main = checkUpKeep(round_id,data_mode)
-    voter_data = data_main.drop_duplicates(subset='voter')
-    data_json = requests.get('https://raw.githubusercontent.com/G-r-ay/G-SSD/main/sybil_clusters.json').json()
+
+data_main = checkUpKeep(round_id)
+voter_data = data_main.drop_duplicates(subset='voter')
+with open("archives/sybil_clusters.json", "r") as json_file:
+    data_json = json.load(json_file)
+    # data_json = requests.get('https://raw.githubusercontent.com/G-r-ay/G-SSD/main/sybil_clusters.json').json()
 
 
 
@@ -70,6 +63,7 @@ st.markdown(
 )
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
 amounts = [random.randint(1000, 1000000) for _ in range(4)]
 
@@ -106,10 +100,10 @@ with col3:
         text-align: left;
     """
 
-
-    class_counts = voter_data['status'].value_counts()
+    unique_voters = data_main.drop_duplicates('voter')
+    class_counts = unique_voters['status'].value_counts()
     desired_class_count = class_counts.get('Sybil', 0)
-    total_instances = len(voter_data)
+    total_instances = len(unique_voters)
     sybil_percentage = (desired_class_count / total_instances) * 100
     sybil_percentage = "{:,.2f}".format(sybil_percentage)
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Percentage of Sybil Voters</p><h2 style="padding-left: 10px;color: white;"><b>{sybil_percentage}%</b></h2></div>', unsafe_allow_html=True)
@@ -169,21 +163,22 @@ col1, col2 = st.columns([60, 40])
 with col1:
 
     pivot_data = data_main.pivot_table(index='status', columns='project_title', aggfunc='size', fill_value=0)
+
     # Get the list of categories (statuses)
-
+    pivot_data = pivot_data.sort_values(by='Sybil', axis=1, ascending=False)
     categories = pivot_data.index.tolist()
-
-    # Get the list of subcategories (project_titles)
-    subcategories = pivot_data.columns.tolist()
-
-    # Flatten the pivot table values into a single list
     data_values = pivot_data.values
     data_values = [np.array(row) for row in data_values]
     categories = categories[:15]
+    # Get the list of subcategories (project_titles)
+    subcategories = [x for _, x in sorted(zip(data_values[1], pivot_data.columns.tolist()), reverse=False)]
 
-    # Limit the number of subcategories to the top 15
-    subcategories = [title[:15] for title in subcategories][:15]
-    color_palette = [palette[-2], palette[-1]]
+
+    subcategories = [title[:20] for title in subcategories][:15]
+
+    data_values = sorted(data_values, key=lambda x: -np.sum(x))
+    subcategories = sorted(subcategories, reverse=True)
+    color_palette = [palette[-3], palette[-2]]
     fig = go.Figure()
 
     for idx, category in enumerate(categories):
@@ -192,8 +187,10 @@ with col1:
             x=data_values[idx],
             name=category,
             orientation='h',
-            marker_color=color_palette[idx]
+            marker_color=color_palette[idx],
         ))
+
+
 
     fig.update_layout(
         barmode='stack',
@@ -204,7 +201,7 @@ with col1:
         xaxis=dict(ticklen=10, tickfont=dict(size=12), showgrid=True, gridwidth=1, gridcolor='rgba(0,0,0,0.1)'),
         yaxis=dict(ticklen=15, tickfont=dict(size=12), showgrid=False),
         yaxis_ticklen=15,
-        yaxis_categoryorder='total ascending'
+        yaxis_categoryorder='category ascending'
     )
     fig.update_layout(title_x=0.45)
 
@@ -255,7 +252,7 @@ with col2:
     fig.update_layout(showlegend=False)
     fig.update_layout(plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF', height=450)
     start_view_angle = dict(
-        eye=dict(x=0.85, y=0.85, z=0.3)
+        eye=dict(x=0.95, y=0.95, z=0.4)
     )
     fig.update_layout(margin=dict(l=0, r=0, t=60, b=20))
     fig.update_layout(scene_camera=start_view_angle)

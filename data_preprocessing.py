@@ -54,14 +54,12 @@ def preprocess_data(round_data:pd.DataFrame):
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def merger(user_data:pd.DataFrame,cultivated_data:pd.DataFrame):
-    
     cultivated_data = pd.merge(cultivated_data, user_data, on='voter')
     columns_to_encode = ['project_title_sorted',
                         'first_from', 'first_to', 'last_from', 'last_to']
     for col in columns_to_encode:
         le = LabelEncoder()
         cultivated_data[col] = le.fit_transform(cultivated_data[col])
-
     return cultivated_data
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------

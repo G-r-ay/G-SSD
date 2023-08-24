@@ -1,15 +1,18 @@
 import requests
 import pandas as pd
 import datetime 
-import os
-import time
 import streamlit as st
-# from dotenv import load_dotenv
-# load_dotenv()
+import os
+from update_db import update_repo_data
+import time
+import http.client
+from dotenv import load_dotenv
+from requests.exceptions import ConnectionError, Timeout
+#---------------------------------------------------------------------------------------------------------------
 
-
-api_key = st.secrets['api_key']
-print(api_key)
+load_dotenv()
+api_key= st.secrets['api_key']
+#---------------------------------------------------------------------------------------------------------------
 url = "https://api-optimistic.etherscan.io/api"
 
 #---------------------------------------------------------------------------------------------------------------
@@ -49,6 +52,7 @@ def first_last_info(address):
         last_from = 'self'
 
     return [first_date, last_date, first_from, first_to, last_from, last_to]
+#---------------------------------------------------------------------------------------------------------------
 
 def get_transaction_history(address):
 
@@ -146,26 +150,25 @@ def fetch(address, nested_list):
     reg_to, reg_from = to_and_from(reg_hist, address)
     erc_to, erc_from = to_and_from(erc20_hist, address)
 
-    row = [address, txn_count, reg_age, erc_age, reg_to,
-           reg_from, erc_to, erc_from] + trasacting_hist
+    row = [address, txn_count, reg_age, erc_age, reg_to,reg_from, erc_to, erc_from] + trasacting_hist
 
     nested_list.append(row)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def compile_data(addresses,existing_data,round_id):
+def compile_data(addresses,round_id):
 
     headers = ['voter','txn_count','Wallet_Age','Wallet_Age(Erc20)','to_count','from_count','erc_to','erc_from','first_date','last_date','first_from','first_to','last_from','last_to']
     contents = []
     count = 0
-    for address in addresses:
-
-        fetch(address,contents)
-        count+=1
-        time.sleep(1)
-        print(f'{count}/{len(addresses)}')
-    
-    new_data_df = pd.DataFrame(contents,columns=headers)
-    
-    combined_data = pd.concat([existing_data, new_data_df], ignore_index=True)
-
-    combined_data.to_csv(f'archives/{round_id}.csv', index=False)
+    for count, address in enumerate(addresses, start=1):
+        try:
+            fetch(address, contents)
+            time.sleep(1)
+            print(f'{count}/{len(addresses)} addresses fetched')
+        except (ConnectionError, Timeout,http.client.RemoteDisconnected) as e:
+            print(f'Failed to fetch data for {address}: {e}')
+            break
+    print('saving')
+    new_data_df = pd.DataFrame(contents, columns=headers)
+    print(new_data_df.shape)
+    update_repo_data(round_id, new_data_df)
