@@ -36,7 +36,7 @@ else:
 
 data_main = checkUpKeep(round_id)
 voter_data = data_main.drop_duplicates(subset='voter')
-data_json = requests.get('https://raw.githubusercontent.com/G-r-ay/G-SSD/main/sybil_clusters.json').json()
+data_json = requests.get('https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/sybil_clusters.json').json()
 
 
 
