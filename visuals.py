@@ -275,7 +275,7 @@ with cluster_container:
     nodes = []
     y_coordinates = []
 
-    for cluster, points in data_json.items():
+    for cluster, points in json_data.items():
         nodes.append({"id": cluster, "size": len(points)})
         y_coordinates.append(random.random())
 
