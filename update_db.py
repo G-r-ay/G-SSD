@@ -1,7 +1,6 @@
 import requests
 import base64
 import os
-from dotenv import load_dotenv
 import streamlit as st
 import json
 import pandas as pd
