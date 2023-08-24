@@ -20,8 +20,6 @@ def checkUpKeep(round_id):
     existing_data = pd.read_csv(f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.csv')
     updates = list(set(processed_data['voter'].unique()) - set(existing_data['voter'].unique()))[5000:13000]
     addresses = list(filter(lambda item: item not in existing_data,updates))
-    print(len(addresses))
-    print(len(updates))
     if len(addresses) > 5:
         sybil_addresses = performUpKeep(updates,processed_data,round_id)
         labelled_data = label_dataframe(raw,sybil_addresses)

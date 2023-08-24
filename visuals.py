@@ -40,7 +40,6 @@ print(round_id)
 url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
 response = requests.get(url)
 json_data = response.json()
-print(url)
 
 
 st.markdown('<link rel="stylesheet" href="styling.css">', unsafe_allow_html=True)
@@ -342,7 +341,7 @@ with col2:
         title="Sybil Funding Treemap",
         plot_bgcolor='#FFFFFF',
         paper_bgcolor='#FFFFFF',
-        margin=dict(l=0, r=0, t=60, b=0),
+        margin=dict(l=0, r=0, t=40, b=0),
         title_x=0.42
     )
 
