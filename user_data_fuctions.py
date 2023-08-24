@@ -9,7 +9,6 @@ import http.client
 from requests.exceptions import ConnectionError, Timeout
 #---------------------------------------------------------------------------------------------------------------
 
-load_dotenv()
 api_key= st.secrets["api_key"]
 #---------------------------------------------------------------------------------------------------------------
 url = "https://api-optimistic.etherscan.io/api"
