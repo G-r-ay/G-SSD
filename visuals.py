@@ -115,7 +115,7 @@ with col4:
     max_length = 0
 
     # Iterate through the dictionary's keys and values
-    for cluster, value in data_json.items():
+    for cluster, value in json_data.items():
         if len(value) > max_length:
             max_key = cluster
             max_length = len(value)
