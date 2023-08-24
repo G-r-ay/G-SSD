@@ -10,7 +10,7 @@ def performUpKeep(updates,processed_data,round_id):
     compile_data(updates,round_id)
     existing_data = pd.read_csv(f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.csv')
     fit_data = merger(existing_data,processed_data)
-    s_address = address_similarity(fit_data)
+    s_address = address_similarity(fit_data,round_id)
     return s_address
 #---------------------------------------------------------------------------------------------------------------
 
