@@ -6,7 +6,6 @@ import os
 from update_db import update_repo_data
 import time
 import http.client
-from dotenv import load_dotenv
 from requests.exceptions import ConnectionError, Timeout
 #---------------------------------------------------------------------------------------------------------------
 
