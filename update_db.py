@@ -4,7 +4,6 @@ import os
 import streamlit as st
 import json
 import pandas as pd
-from similarity_code import get_json
 
 
 #---------------------------------------------------------------------------------------------------------------
@@ -54,8 +53,6 @@ def overwrite_github_json(json_file,round_id):
         "Authorization": f"token {github_token}",
         "Accept": "application/vnd.github.v3+json"
     }
-
-    #data = get_json()
     response = requests.get(url, headers=headers)
     response_json = response.json()
     existing_sha = response_json.get("sha")
