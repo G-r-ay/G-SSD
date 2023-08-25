@@ -157,14 +157,14 @@ def compile_data(addresses,round_id):
 
     headers = ['voter','txn_count','Wallet_Age','Wallet_Age(Erc20)','to_count','from_count','erc_to','erc_from','first_date','last_date','first_from','first_to','last_from','last_to']
     contents = []
-    progress_text = "Updating Round data. Please wait."
-    my_bar = st.progress(0, text=progress_text)
+    # progress_text = "Updating Round data. Please wait."
+    # my_bar = st.progress(0, text=progress_text)
     for count, address in enumerate(addresses, start=1):
         try:
             fetch(address, contents)
             time.sleep(1)
-            my_bar.progress(count + 1, text=progress_text)
-            print(f'{count}/{len(addresses)} addresses fetched')
+            # my_bar.progress(count + 1, text=progress_text)
+            # print(f'{count}/{len(addresses)} addresses fetched')
         except (ConnectionError, Timeout,http.client.RemoteDisconnected) as e:
             print(f'Failed to fetch data for {address}: {e}')
             break
