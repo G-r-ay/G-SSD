@@ -157,7 +157,6 @@ def compile_data(addresses,round_id):
 
     headers = ['voter','txn_count','Wallet_Age','Wallet_Age(Erc20)','to_count','from_count','erc_to','erc_from','first_date','last_date','first_from','first_to','last_from','last_to']
     contents = []
-    count = 0
     progress_text = "Updating Round data. Please wait."
     my_bar = st.progress(0, text=progress_text)
     for count, address in enumerate(addresses, start=1):
