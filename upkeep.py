@@ -9,7 +9,6 @@ from similarity_code import address_similarity
 def performUpKeep(updates,processed_data,round_id):
     compile_data(updates,round_id)
     existing_data = pd.read_parquet(f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.parquet')
-    existing_data = existing_data.to_pandas()
     fit_data = merger(existing_data,processed_data)
     s_address = address_similarity(fit_data,round_id)
     return s_address
@@ -19,7 +18,6 @@ def checkUpKeep(round_id):
     raw = getData(round_id)
     processed_data = preprocess_data(raw)  
     existing_data = pd.read_parquet(f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.parquet')
-    existing_data = existing_data.to_pandas()
     updates = list(set(processed_data['voter'].unique()) - set(existing_data['voter'].unique()))
     addresses = list(filter(lambda item: item not in existing_data,updates))
     if len(addresses) > 5:
