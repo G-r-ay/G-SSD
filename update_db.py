@@ -11,12 +11,12 @@ github_token= st.secrets["github_token"]
 #---------------------------------------------------------------------------------------------------------------
 def update_repo_data(round_id,new_data):
     existing_file_url = f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.csv'
-    data = pd.read_csv(existing_file_url)
-
+    data = pd.read_parquet(existing_file_url)
+    data = data.to_pandas()
 
     df = pd.concat([data, new_data], ignore_index=True)
     df.drop_duplicates(inplace=True)
-    modified_content  = df.to_csv(index=False)
+    modified_content  = df.to_parquet(index=False)
     modified_content_encoded = base64.b64encode(modified_content.encode()).decode()
 
 
