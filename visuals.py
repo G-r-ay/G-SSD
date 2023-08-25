@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 
-
+print('starting')
 palette = ['#05668D', '#028090', '#00A896', '#02C39A']
 background_color = "#f0f0f0"
 shadow_color = "rgba(0, 0, 0, 0.2)"
