@@ -71,14 +71,14 @@ def overwrite_github_json(json_file,round_id):
         print("Failed to update JSON file.")
 #---------------------------------------------------------------------------------------------------------------
 def update_round_time_data(round_id,new_data):
-    # existing_file_url = f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_time.parquet'
-    # data = pd.read_parquet(existing_file_url)
-    # data.dropna(inplace=True)
-    # df = pd.concat([data, new_data], ignore_index=True)
+    existing_file_url = f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_time.parquet'
+    data = pd.read_parquet(existing_file_url)
+    data.dropna(inplace=True)
+    df = pd.concat([data, new_data], ignore_index=True)
 
 
-    new_data.drop_duplicates(inplace=True)
-    modified_content = new_data.to_parquet(index=False)
+    df.drop_duplicates(inplace=True)
+    modified_content = df.to_parquet(index=False)
     modified_content_encoded = base64.b64encode(modified_content).decode()
 
     api_url = f'https://api.github.com/repos/G-r-ay/G-SSD/contents/archives/{round_id}_time.parquet'
