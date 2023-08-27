@@ -2,12 +2,14 @@ import requests
 import pandas as pd
 import datetime 
 import streamlit as st
-import os
-from update_db import update_repo_data
+from update_db import update_repo_data,update_round_time_data
+import requests
+from requests.auth import HTTPBasicAuth
 import time
 import http.client
-from requests.exceptions import ConnectionError, Timeout
+from requests.exceptions import ConnectionError, Timeout, JSONDecodeError
 #---------------------------------------------------------------------------------------------------------------
+colavent_api_key = st.secrets['colavent_api_key']
 
 api_key= st.secrets["api_key"]
 #---------------------------------------------------------------------------------------------------------------
@@ -149,7 +151,6 @@ def fetch(address, nested_list):
     erc_to, erc_from = to_and_from(erc20_hist, address)
 
     row = [address, txn_count, reg_age, erc_age, reg_to,reg_from, erc_to, erc_from] + trasacting_hist
-
     nested_list.append(row)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -157,18 +158,49 @@ def compile_data(addresses,round_id):
 
     headers = ['voter','txn_count','Wallet_Age','Wallet_Age(Erc20)','to_count','from_count','erc_to','erc_from','first_date','last_date','first_from','first_to','last_from','last_to']
     contents = []
-    # progress_text = "Updating Round data. Please wait."
-    # my_bar = st.progress(0, text=progress_text)
+    count = 0
+    my_bar = st.progress(0)
+    total_items = len(addresses)
     for count, address in enumerate(addresses, start=1):
         try:
             fetch(address, contents)
             time.sleep(1)
-            # my_bar.progress(count + 1, text=progress_text)
-            # print(f'{count}/{len(addresses)} addresses fetched')
-        except (ConnectionError, Timeout,http.client.RemoteDisconnected) as e:
-            print(f'Failed to fetch data for {address}: {e}')
+            progress_text = f"Updating Round data. Please wait.: {count}/{total_items}"
+            my_bar.progress(int(count * 100 / total_items),progress_text)
+        except (ConnectionError, Timeout,http.client.RemoteDisconnected,TypeError,JSONDecodeError) as e:
+            print(f'Failed to fetch data for {address}: Error Type{e}')
             break
+    my_bar.empty()
     print('saving')
     new_data_df = pd.DataFrame(contents, columns=headers)
-    print(new_data_df.shape)
     update_repo_data(round_id, new_data_df)
+
+
+
+def get_dates(hashes, round_id):
+    contents = []
+    count = 0
+    my_bar = st.progress(0)
+    total_items = len(hashes)
+    for count, tx_hash in enumerate(hashes, start=1):
+        try:
+            url = f"https://api.covalenthq.com/v1/optimism-mainnet/transaction_v2/{tx_hash}/?"
+
+            headers = {
+                "accept": "application/json",
+            }
+
+            basic = HTTPBasicAuth(colavent_api_key, '')
+
+            response = requests.get(url, headers=headers, auth=basic).json()['data']['items'][0]['block_signed_at']
+            contents.append([tx_hash, response])
+            progress_text = f"Updating Round date data. Please wait.: {count}/{total_items}"
+            my_bar.progress(int(count * 100 / total_items),progress_text)
+        except (ConnectionError, Timeout, http.client.RemoteDisconnected, TypeError, JSONDecodeError) as e:
+            print(f'Failed to fetch data for {tx_hash}: Error Type {e}')
+            break
+    my_bar.empty()
+    print('saving dates')
+    headers = ['transaction', 'date']
+    new_dates = pd.DataFrame(contents, columns=headers)
+    update_round_time_data(round_id, new_dates)

@@ -1,5 +1,4 @@
 import numpy as np
-import json
 from update_db import overwrite_github_json
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
@@ -28,11 +27,6 @@ def address_similarity(full_data,round_id):
             if similar_row_values not in similar_rows:
                 similar_rows.append(similar_row_values)
 
-    # for i, row_group in enumerate(similar_rows):
-    #     print(f"Similar Row Group {i}:")
-    #     for row in row_group:
-    #         print(row[0], row[1:])
-    #     print()
 
     for i, row_group in enumerate(similar_rows):
         cluster_group = []
