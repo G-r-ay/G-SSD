@@ -25,7 +25,7 @@ def checkUpKeep(round_id):
     else:
         print('upkeepnotneeded')
         fit_data = merger(existing_data,processed_data)
-        # sybil_addresses = address_similarity(fit_data,round_id)
+        sybil_addresses = address_similarity(fit_data,round_id)
         labelled_data = label_dataframe(raw,sybil_addresses)
         return labelled_data
 #---------------------------------------------------------------------------------------------------------------
