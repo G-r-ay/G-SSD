@@ -35,6 +35,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
+current = "Climate Round"
 if st.sidebar.button(
     "Climate Round", use_container_width=True
 ):
