@@ -32,7 +32,7 @@ def checkUpKeep(round_id):
 def date_up_keep(round_id,sybil_addresses):
     raw = getData(round_id,True)
     existing_data = pd.read_parquet(f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_time.parquet')
-    updates = list(set(raw['transaction'].unique()))
+    updates = list(set(raw['transaction'].unique())-set(existing_data['transaction'].unique()))
     get_dates(updates,round_id)
     existing_data = pd.read_parquet(f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_time.parquet')
     print('done')
