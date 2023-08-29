@@ -344,7 +344,7 @@ with pie:
 
     fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=0.7, marker=dict(colors=colors),textinfo='none',showlegend=True)])
 
-    center_text = f'<b>{sum(values)}</b><br>Total Votes'
+    center_text = f'<b>{sum(values)}</b><br>Total Voters'
     fig.update_layout(
         title='Votes Percentages',
         margin=dict(t=80, b=60, l=80, r=80),
