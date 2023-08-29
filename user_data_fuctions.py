@@ -189,9 +189,7 @@ def get_dates(hashes, round_id):
     batch_size = 100  # Adjust the batch size as needed
     total_items = len(hashes)
     num_batches = (total_items + batch_size - 1) // batch_size  # Calculate the number of batches
-    headers = ['transaction', 'date']
 
-    headers = ['voter', 'txn_count', 'Wallet_Age', 'Wallet_Age(Erc20)', 'to_count', 'from_count', 'erc_to', 'erc_from', 'first_date', 'last_date', 'first_from', 'first_to', 'last_from', 'last_to']
     contents = []
 
     print('Starting')
@@ -216,6 +214,7 @@ def get_dates(hashes, round_id):
         progress_text = f"Processing batches: {batch_number + 1}/{num_batches}"
         my_bar.progress(batch_progress, progress_text)
         print('saving dates')
+        headers = ['transaction', 'date']
         new_dates = pd.DataFrame(contents, columns=headers)
         update_round_time_data(round_id, new_dates)
     my_bar.empty()
