@@ -52,7 +52,7 @@ if st.sidebar.button(
     round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
     current = "Web3 Open Source Software"
     
-st.write(f"Round in View - {current}")
+st.write(f"Round in View:{current}")
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,12 +64,9 @@ def load_main_data(round_id):
 def load_time_data(round_id,sybil_addresses): 
     return date_up_keep(round_id,sybil_addresses)
 
-
-
 data_main,sybil_addresses = load_main_data(round_id)
 time_data = load_time_data(round_id,sybil_addresses)
 voter_data = data_main.drop_duplicates(subset='voter')
-print(data_main.shape, voter_data.shape)
 
 url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
 response = requests.get(url)
@@ -168,19 +165,6 @@ with col4:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 treemap,time_ = st.columns([30,70])
 with time_:
-    # Sample data (replace this with your data)
-    data = [
-        {"hash": "hash1", "date": "2023-08-15T12:15:17Z", "status": "Non-Sybil"},
-        {"hash": "hash2", "date": "2023-08-15T12:15:41Z", "status": "Sybil"},
-        # ... add more data
-    ]
-
-    # Create DataFrame from the data
-    df = pd.DataFrame(data)
-
-    # Convert "date" column to datetime
-
-    # Convert "date" column to datetime
     time_data['date'] = pd.to_datetime(time_data['date'])
 
     # Calculate sum of "Sybil" and "Non-Sybil" votes per day

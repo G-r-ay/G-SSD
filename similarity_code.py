@@ -2,7 +2,7 @@ import numpy as np
 from update_db import overwrite_github_json
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
-address = set()
+
 
 #---------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ def address_similarity(full_data,round_id):
     similarity_matrix = cosine_similarity(data[:, 1:])
 
     threshold = 0.999
-
+    address = set()
     similar_rows = []
 
     for i in range(len(similarity_matrix)):

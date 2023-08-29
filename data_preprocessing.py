@@ -1,36 +1,25 @@
 import pandas as pd
-import similarity_code 
 from sklearn.preprocessing import  LabelEncoder
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def getData(round_id,tx_hash=False):
+    data = pd.read_json(f'https://indexer-grants-stack.gitcoin.co/data/10/rounds/{round_id}/applications.json')
+    projects = {}
+    for _, row in data.iterrows():
+        project_id = row['metadata']['application']['recipient']
+        projects[project_id] = row['metadata']['application']['project']['title']
+
+    votes = pd.read_json(f'https://indexer-grants-stack.gitcoin.co/data/10/rounds/{round_id}/votes.json')
+    votes['project_title'] = votes['grantAddress'].map(projects)
     if tx_hash == False:
-        url = f'https://indexer-grants-stack.gitcoin.co/data/10/rounds/{round_id}/applications.json'
-        data = pd.read_json(url)
-
-        projects = {}
-        for index, row in data.iterrows():
-            project_id = row['metadata']['application']['recipient']
-            projects[project_id] = row['metadata']['application']['project']['title']
-
-        votes = pd.read_json(f'https://indexer-grants-stack.gitcoin.co/data/10/rounds/{round_id}/votes.json')
-        votes['project_title'] = votes['grantAddress'].map(projects)
         votes.drop(['id','transaction','blockNumber','applicationId','roundId','grantAddress','token','amount','amountRoundToken'],axis=1,inplace=True)
         votes.dropna(inplace=True)
         return votes
     else:
-        url = f'https://indexer-grants-stack.gitcoin.co/data/10/rounds/{round_id}/applications.json'
-        data = pd.read_json(url)
-
-        projects = {}
-        for index, row in data.iterrows():
-            project_id = row['metadata']['application']['recipient']
-            projects[project_id] = row['metadata']['application']['project']['title']
-
-        votes = pd.read_json(f'https://indexer-grants-stack.gitcoin.co/data/10/rounds/{round_id}/votes.json')
-        votes['project_title'] = votes['grantAddress'].map(projects)
         votes.drop(['id','blockNumber','applicationId','roundId','grantAddress','token','amount','amountRoundToken'],axis=1,inplace=True)
         votes.dropna(inplace=True)
         return votes
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def preprocess_data(round_data:pd.DataFrame):
     funding_counts = round_data['voter'].value_counts()
@@ -66,6 +55,7 @@ def preprocess_data(round_data:pd.DataFrame):
     cultivated_data = cultivated_data.loc[(cultivated_data['No_Projects_Funded'] <= 10) & (cultivated_data['Funding_count'] <= 10)]\
         .reset_index(drop=True)
     return cultivated_data
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def merger(user_data:pd.DataFrame,cultivated_data:pd.DataFrame):
@@ -83,4 +73,5 @@ def label_dataframe(round_data,address):
     round_data['status'] = round_data['voter'].apply(lambda addr: 'Sybil' if addr in address else 'Non-Sybil')
     return round_data
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

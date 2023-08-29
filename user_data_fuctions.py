@@ -154,13 +154,13 @@ def fetch(address, nested_list):
     nested_list.append(row)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def compile_data(addresses,round_id):
-
+def compile_data(addresses,round_id,existing_data):
     headers = ['voter','txn_count','Wallet_Age','Wallet_Age(Erc20)','to_count','from_count','erc_to','erc_from','first_date','last_date','first_from','first_to','last_from','last_to']
     contents = []
     count = 0
     my_bar = st.progress(0)
     total_items = len(addresses)
+    print('starting')
     for count, address in enumerate(addresses, start=1):
         try:
             fetch(address, contents)
@@ -173,7 +173,7 @@ def compile_data(addresses,round_id):
     my_bar.empty()
     print('saving')
     new_data_df = pd.DataFrame(contents, columns=headers)
-    update_repo_data(round_id, new_data_df)
+    update_repo_data(round_id, new_data_df,existing_data)
 
 
 

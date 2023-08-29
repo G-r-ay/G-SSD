@@ -4,17 +4,15 @@ import streamlit as st
 import json
 import pandas as pd
 
-
 #---------------------------------------------------------------------------------------------------------------
 github_token= st.secrets["github_token"]
 #---------------------------------------------------------------------------------------------------------------
-def update_repo_data(round_id,new_data):
-    existing_file_url = f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}.parquet'
-    data = pd.read_parquet(existing_file_url)
-    data.dropna(inplace=True)
+
+def update_repo_data(round_id,new_data,existing_data):
+    existing_data.dropna(inplace=True)
     new_data['first_date'] = new_data['first_date'].astype('int64')
     new_data['last_date'] = new_data['last_date'].astype('int64')
-    df = pd.concat([data, new_data], ignore_index=True)
+    df = pd.concat([existing_data, new_data], ignore_index=True)
 
 
     df.drop_duplicates(inplace=True)
@@ -43,7 +41,9 @@ def update_repo_data(round_id,new_data):
             print("Error updating file:", update_response.text)
     else:
         print("Error getting file info:", response.text)
+
 #---------------------------------------------------------------------------------------------------------------
+
 def overwrite_github_json(json_file,round_id):
     url = f"https://api.github.com/repos/G-r-ay/G-SSD/contents/archives/{round_id}_sybil_cluster.json"
     
@@ -69,13 +69,13 @@ def overwrite_github_json(json_file,round_id):
         print("JSON file updated successfully.")
     else:
         print("Failed to update JSON file.")
+        
 #---------------------------------------------------------------------------------------------------------------
 def update_round_time_data(round_id,new_data):
     existing_file_url = f'https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_time.parquet'
     data = pd.read_parquet(existing_file_url)
     data.dropna(inplace=True)
     df = pd.concat([data, new_data], ignore_index=True)
-
 
     df.drop_duplicates(inplace=True)
     modified_content = df.to_parquet(index=False)
