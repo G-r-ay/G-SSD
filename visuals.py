@@ -1,24 +1,27 @@
-import streamlit as st
-import pandas as pd
-import random
-import requests
-from upkeep import checkUpKeep,date_up_keep
-import plotly.graph_objects as go
-import numpy as np
 import time
+import requests
+import numpy as np
 import pandas as pd
+from getter import *
+import streamlit as st
 import plotly.express as px
-from datetime import datetime
+import plotly.graph_objects as go
+from upkeep import checkUpKeep,date_up_keep_update
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#State Variables
 print('refreshed')
 palette = ['#BFC0C0','#2D3142']
 background_color = "#f0f0f0"
 shadow_color = "rgba(0, 0, 0, 0.2)"
 
+if 'last_refresh_time' not in st.session_state:
+    st.session_state.last_refresh_time = None
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#page configurations
 st.set_page_config(page_title="G-SSD",layout='wide',page_icon='imgs/G-SSD.png')
 st.title("Gitcoin-Sybil Summary Dashboard")
-st.write(f"Last Refresh Time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 st.sidebar.title('G_SSD')
 st.sidebar.markdown(
     """
@@ -34,44 +37,71 @@ st.sidebar.markdown(
     """,
     unsafe_allow_html=True
 )
-round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
-current = "Climate Round"
-if st.sidebar.button(
-    "Climate Round", use_container_width=True
-):
-    round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
-    current = "Climate Round"
-if st.sidebar.button(
-    "Web3 Open Source Software", use_container_width=True
-):
-    round_id = '0x8de918F0163b2021839A8D84954dD7E8e151326D'
-    current = "Web3 Open Source Software"
-if st.sidebar.button(
-    "Web3 Community and Education", use_container_width=True
-):
-    round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-    current = "Web3 Open Source Software"
-    
-st.write(f"Round in View:{current}")
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Defaults and Selections
+if 'round_id' not in st.session_state:
+    st.session_state.round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
+    st.session_state.current = "Climate Round"
+ 
+# Define buttons
+if st.sidebar.button("Climate Round", use_container_width=True):
+    st.session_state.round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
+    st.session_state.current = "Climate Round"
 
-@st.cache_data
-def load_main_data(round_id): 
-    return checkUpKeep(round_id)
+if st.sidebar.button("Web3 Open Source Software", use_container_width=True):
+    st.session_state.round_id = '0x8de918F0163b2021839A8D84954dD7E8e151326D'
+    st.session_state.current = "Web3 Open Source Software"
 
-@st.cache_data
-def load_time_data(round_id,sybil_addresses): 
-    return date_up_keep(round_id,sybil_addresses)
+if st.sidebar.button("Web3 Community and Education", use_container_width=True):
+    st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
+    st.session_state.current = "Web3 Community and Education"
 
+st.sidebar.write(f"Selected Round {st.session_state.current}")
+update_button = st.sidebar.button("Update", key="update_button", help="Update Round data")
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Data Getters and Caching
+if update_button:
+    st.sidebar.write(f"Last Refresh Time {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    def load_main_data(round_id): 
+        dt = checkUpKeep(round_id)
+        return dt
+
+    def load_time_data(round_id,sybil_addresses): 
+        return date_up_keep_update(round_id,sybil_addresses)
+    
+    def get_cluster_json(round_id):
+        url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
+        response = requests.get(url)
+        return response.json()
+else:
+    @st.cache_data
+    def load_main_data(round_id): 
+        dt = get_labelled_existing(round_id)
+        return dt
+    @st.cache_data
+    def load_time_data(round_id,sybil_addresses): 
+        return get_date_existing(round_id,sybil_addresses)
+    @st.cache_data
+    def get_cluster_json(round_id):
+        url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
+        response = requests.get(url)
+        return response.json()
+    
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Data Initalization
+round_id = st.session_state.round_id
+if st.session_state.last_refresh_time is not None:
+    st.sidebar.write(f"Last Refresh Time: {st.session_state.last_refresh_time}")
 data_main,sybil_addresses = load_main_data(round_id)
 time_data = load_time_data(round_id,sybil_addresses)
 voter_data = data_main.drop_duplicates(subset='voter')
+print(time_data['status'].value_counts())
+json_data = get_cluster_json(round_id)
 
-url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
-response = requests.get(url)
-json_data = response.json()
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#top bar
 top_bar_style = """
     position: fixed;
     top: 0;
@@ -83,15 +113,15 @@ top_bar_style = """
     align-items: center;
     justify-content: center;
     z-index: 100;
-    color: black;  /* Set text color to black */
+    color: red;  /* Set text color to black */
 """
 st.markdown(
-    f'<div style="{top_bar_style}">hello</div>',
+    f'<div style="{top_bar_style}">Helloe</div>',
     unsafe_allow_html=True
 )
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 col1, col2,col3,col4= st.columns([20,20,20,20])
-
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 with col1:
     box_style = f"""
         border-radius: 10px;
@@ -107,7 +137,9 @@ with col1:
     except KeyError:
         num_sybils = 0
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Total Number Of Identified Sybils</p><h3 style="padding-left: 10px;color: white;"><b>{num_sybils}</b></h3></div>', unsafe_allow_html=True)
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 with col2:
     box_style = f"""
         border-radius: 10px;
@@ -122,7 +154,9 @@ with col2:
 
     sybils_donations_sum = "${:,.2f}".format(sybil_data)
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Amount Donated By Sybils ($)</p><h3 style="padding-left: 10px;color: white;"><b>{sybils_donations_sum}</b></h3></div>', unsafe_allow_html=True)
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 with col3:
     box_style = f"""
         border-radius: 10px;
@@ -140,6 +174,8 @@ with col3:
     sybil_percentage = (desired_class_count / total_instances) * 100
     sybil_percentage = "{:,.2f}".format(sybil_percentage)
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Percentage Of Sybil Voters</p><h3 style="padding-left: 10px;color: white;"><b>{sybil_percentage}%</b></h3></div>', unsafe_allow_html=True)
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 with col4:
     max_key = None
@@ -162,30 +198,22 @@ with col4:
     """
 
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Largest Cluster Size</p><h3 style="padding-left: 10px;color: white;"><b>{max_length}{subscript}</b></h3></div>', unsafe_allow_html=True)
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 treemap,time_ = st.columns([30,70])
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Votes/Time
 with time_:
     time_data['date'] = pd.to_datetime(time_data['date'])
-
-    # Calculate sum of "Sybil" and "Non-Sybil" votes per day
     df_grouped = time_data.groupby([time_data['date'].dt.date, 'status']).size().unstack(fill_value=0).reset_index()
-
-    # Reshape the DataFrame to a long format
     df_long = df_grouped.melt(id_vars='date', value_vars=['Sybil', 'Non-Sybil'], var_name='status', value_name='count')
-
-    # Create stacked area chart using Plotly Express
     fig = px.area(df_long, x='date', y='count', color='status', title='Sum of Sybil and Non-Sybil Votes per Day',color_discrete_sequence=['#2D3142','#BFC0C0'])
 
-    fig.update_xaxes(type='category')  # Set x-axis as categorical (to avoid gaps)
-
+    fig.update_xaxes(type='category')
     fig.update_traces(mode='lines', stackgroup='one')
- 
-    fig.update_layout(title_x=0.35)
     fig.update_layout(plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF', height=500)
     fig.update_traces(mode='markers', opacity=0.7, line=dict(dash='dash'))
-
     fig.update_layout(plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF', height=500)
-
 
     st.markdown(f"""
         <style>
@@ -200,8 +228,8 @@ with time_:
 
     st.plotly_chart(fig, use_container_width=True)
 
-
-
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Funding map
 with treemap:
     data = data_main.loc[data_main['status']=='Sybil']
     grouped_df = data.groupby('project_title')['amountUSD'].sum().reset_index()
@@ -219,7 +247,6 @@ with treemap:
         plot_bgcolor='#FFFFFF',
         paper_bgcolor='#FFFFFF',
         margin=dict(l=0, r=0, t=40, b=0),
-        title_x=0.30,
         height=500
     )
 
@@ -238,8 +265,11 @@ with treemap:
     """, unsafe_allow_html=True)
 
     st.plotly_chart(fig, use_container_width=True)
+
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 bar,pie = st.columns([70,30])
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 with bar:
     status_counts = voter_data.groupby(['project_title', 'status']).size().reset_index(name='count')
     pivot_table = status_counts.pivot_table(index='project_title', columns='status', values='count', fill_value=0)
@@ -286,7 +316,6 @@ with bar:
         height=500
     )
 
-    fig.update_layout(title_x=0.45)
 
     st.markdown(f"""
     <style>
@@ -301,7 +330,7 @@ with bar:
 
     st.plotly_chart(fig,use_container_width=True)
 
-
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 with pie:
     labels = ['Sybil', 'Non-Sybil']
@@ -325,7 +354,6 @@ with pie:
         annotations=[dict(text=center_text, showarrow=False, x=0.5, y=0.5)],
         font=dict(size=14)
     )
-    fig.update_layout(title_x=0.32)
     fig.update_layout(plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',height=500)
     st.markdown(f"""
     <style>
@@ -340,12 +368,12 @@ with pie:
     st.plotly_chart(fig,use_container_width=True)
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-option = st.selectbox(
-    'Select a Project',
-    data_main['project_title'].unique())
-project_data = data_main.loc[data_main['project_title']==option]
 globe = st.container()
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 with globe:
+    option = st.selectbox('Select a Project', time_data['project_title'].unique(), index=0, key='selectbox')
+    project_data = data_main.loc[data_main['project_title'] == option]
+
     try:
         Sybils = project_data['status'].value_counts()['Sybil']
     except KeyError:
@@ -380,8 +408,7 @@ with globe:
     )
     fig.update_layout(margin=dict(l=0, r=0, t=60, b=20))
     fig.update_layout(scene_camera=start_view_angle)
-    fig.update_layout(title="Vote Globe")
-    fig.update_layout(title_x=0.34)
+    fig.update_layout(title="Project Votes Globe Representation")
 
 
     st.markdown(f"""
@@ -396,7 +423,5 @@ with globe:
     """, unsafe_allow_html=True)
 
     st.plotly_chart(fig, use_container_width=True)
-
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
