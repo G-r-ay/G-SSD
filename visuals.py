@@ -6,11 +6,12 @@ from getter import *
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from upkeep import checkUpKeep,date_up_keep_update
+from upkeep import checkVotersUpKeep,date_up_keep_update
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #State Variables
 palette = ['#BFC0C0','#2D3142']
+round_status = 'finished'
 background_color = "#f0f0f0"
 shadow_color = "rgba(0, 0, 0, 0.2)"
 
@@ -20,7 +21,6 @@ if 'last_refresh_time' not in st.session_state:
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #page configurations
 st.set_page_config(page_title="G-SSD",layout='wide',page_icon='imgs/G-SSD.png')
-st.title("Gitcoin-Sybil Summary Dashboard")
 st.sidebar.title('G_SSD')
 st.sidebar.markdown(
     """
@@ -36,67 +36,143 @@ st.sidebar.markdown(
     """,
     unsafe_allow_html=True
 )
+# Page title
+st.title("G-SSD: Gitcoin Sybil Summary Dashboard")
+
+# Introduction
+st.markdown("📊 **Introducing G-SSD: Unveiling Sybil's Impact!**\n\n"
+            "Step into the world of decentralized collaboration with the Gitcoin Sybil Summary Dashboard (G-SSD). This powerful tool illuminates the often hidden effects of Sybil attacks on grant rounds and projects within the Gitcoin ecosystem, providing valuable insights for operators and voters alike.")
+
+# Purpose
+st.markdown("🎯 **Purpose**\n\n"
+            "Sybil attacks pose a challenge to the integrity of decentralized networks. G-SSD addresses this challenge by presenting a clear visual representation of defense measures and their impact, making complex data easily understandable for everyone.")
+
+# Empowering Community
+st.markdown("🌟 **Empowering Community**\n\n"
+            "G-SSD goes beyond data – it's about building a stronger community. By offering a comprehensive view of Sybil attack effects, G-SSD enables operators to fine-tune their strategies and voters to see their influence. Join us in unraveling the story behind Sybil attacks and fortifying our decentralized landscape!")
+
+#----------------------------
+
+# temp_update = st.sidebar.button("temp_Update", key="temp_update_button", help="Update Round data")
+
+# if temp_update:
+#     round_status = 'Active'
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Defaults and Selections
-if 'round_id' not in st.session_state:
+if 'selected_round' not in st.session_state:
     st.session_state.round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
-    st.session_state.current = "Climate Round"
- 
+    st.session_state.selected_round = "Climate Round"
+
 # Define buttons
 if st.sidebar.button("Climate Round", use_container_width=True):
     st.session_state.round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
-    st.session_state.current = "Climate Round"
+    st.session_state.selected_round = "Climate Round"
 
 if st.sidebar.button("Web3 Open Source Software", use_container_width=True):
     st.session_state.round_id = '0x8de918F0163b2021839A8D84954dD7E8e151326D'
-    st.session_state.current = "Web3 Open Source Software"
+    st.session_state.selected_round = "Web3 Open Source Software"
 
 if st.sidebar.button("Web3 Community and Education", use_container_width=True):
     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-    st.session_state.current = "Web3 Community and Education"
+    st.session_state.selected_round = "Web3 Community and Education "
 
-st.sidebar.write(f"Selected Round {st.session_state.current}")
-update_button = st.sidebar.button("Update", key="update_button", help="Update Round data")
+# if st.sidebar.button("Global Chinese Community for Public Goods", use_container_width=True):
+#     st.session_state.selected_round = "Global Chinese Community for Public Goods - GR18"
 
+# if st.sidebar.button("Web3 Social", use_container_width=True):
+#     st.session_state.selected_round = "Web3 Social"
+
+# if st.sidebar.button("Zuzalu Continuous Innovation", use_container_width=True):
+#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
+#     st.session_state.selected_round = "Zuzalu Continuous Innovation"
+
+# if st.sidebar.button("Meta Pool LatAm GG18", use_container_width=True):
+#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
+#     st.session_state.selected_round = "Meta Pool LatAm GG18"
+
+# if st.sidebar.button("Ethereum Infrastructure", use_container_width=True):
+#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
+#     st.session_state.selected_round = "Ethereum Infrastructure"
+
+# if st.sidebar.button("Arbitrum Domain Round", use_container_width=True):
+#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
+#     st.session_state.selected_round = "Arbitrum Domain Round"
+
+# if st.sidebar.button("ReFi DAO Local Node", use_container_width=True):
+#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
+#     st.session_state.selected_round = "ReFi DAO Local Node"
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Data Getters and Caching
-if update_button:
-    st.sidebar.write(f"Last Refresh Time {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    def load_main_data(round_id): 
-        dt = checkUpKeep(round_id)
-        return dt
+#Defaults and Selections
+round_id = st.session_state.round_id
+round_name = st.session_state.selected_round
+@st.cache_data
+def get_cluster_json(round_id):
+    url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
+    response = requests.get(url)
+    return response.json()
 
-    def load_time_data(round_id,sybil_addresses): 
-        return date_up_keep_update(round_id,sybil_addresses)
-    
-    def get_cluster_json(round_id):
-        url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
-        response = requests.get(url)
-        return response.json()
+if round_status == 'Active':
+    st.sidebar.write(f"Selected Round {st.session_state.selected_round}")
+    update_button = st.sidebar.button("Update", key="update_button", help="Update Round data")
+
+    if update_button:
+        st.sidebar.write(f"Last Refresh Time {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        def get_round_voter_data(round_id): 
+            dt = checkVotersUpKeep(round_status,round_id)
+            return dt
+
+        def load_time_data(round_id,sybil_addresses): 
+            return date_up_keep_update(round_id,sybil_addresses)
+        
+        def get_cluster_json(round_id):
+            url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
+            response = requests.get(url)
+            return response.json()
+    else:
+        @st.cache_data
+        def get_round_voter_data(round_id): 
+            dt = get_labelled_existing(round_id)
+            return dt
+        @st.cache_data
+        def load_time_data(round_id,sybil_addresses): 
+            return get_date_existing(round_id,sybil_addresses)
 else:
     @st.cache_data
-    def load_main_data(round_id): 
-        dt = get_labelled_existing(round_id)
-        return dt
+    def get_gr18_data():
+        data = pd.read_csv('gg18_votes.csv')
+        return data
+
     @st.cache_data
-    def load_time_data(round_id,sybil_addresses): 
-        return get_date_existing(round_id,sybil_addresses)
-    @st.cache_data
-    def get_cluster_json(round_id):
-        url = f"https://raw.githubusercontent.com/G-r-ay/G-SSD/main/archives/{round_id}_sybil_cluster.json"
-        response = requests.get(url)
-        return response.json()
+    def get_round_voter_data(round_id,data,round_name):
+        round_data = data.loc[data['round_name']==round_name]
+        return get_voter_data(round_data,round_id)
+
     
+    @st.cache_data
+    def get_round_voting_data(data,round_name,sybil_addresses):
+        return label_dataframe(data.loc[data['round_name']==round_name],sybil_addresses)
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Data Initalization
 round_id = st.session_state.round_id
-if st.session_state.last_refresh_time is not None:
-    st.sidebar.write(f"Last Refresh Time: {st.session_state.last_refresh_time}")
-data_main,sybil_addresses = load_main_data(round_id)
-time_data = load_time_data(round_id,sybil_addresses)
-voter_data = data_main.drop_duplicates(subset='voter')
 json_data = get_cluster_json(round_id)
+if round_status=='Active':
+    if st.session_state.last_refresh_time is not None:
+        st.sidebar.write(f"Last Refresh Time: {st.session_state.last_refresh_time}")
+    round_voter_data,sybil_addresses = get_round_voter_data(round_id)
+    time_data = load_time_data(round_id,sybil_addresses)
+
+else:
+    round_name = st.session_state.selected_round
+    gg18_data = get_gr18_data()
+    print(round_name)
+    round_voter_data,sybil_addresses = get_round_voter_data(round_id,gg18_data,round_name)
+    print(round_voter_data.shape, round_name)
+    round_voter_data = round_voter_data.drop_duplicates(subset='voter')
+    print(round_voter_data['round_name'].unique(), round_name)
+    time_data = get_round_voting_data(gg18_data,round_name,sybil_addresses)
+    print(round_voter_data['round_name'].unique(), round_name)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #top bar
@@ -114,7 +190,7 @@ top_bar_style = """
     color: red;  /* Set text color to black */
 """
 st.markdown(
-    f'<div style="{top_bar_style}">Helloe</div>',
+    f'<div style="{top_bar_style}">G-SSD</div>',
     unsafe_allow_html=True
 )
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +207,7 @@ with col1:
         font-size: 10vh;  /* Font size based on 10% of the container height */
     """
     try:
-        num_sybils = voter_data['status'].value_counts()['Sybil']
+        num_sybils = round_voter_data['status'].value_counts()['Sybil']
     except KeyError:
         num_sybils = 0
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Total Number Of Identified Sybils</p><h3 style="padding-left: 10px;color: white;"><b>{num_sybils}</b></h3></div>', unsafe_allow_html=True)
@@ -148,7 +224,7 @@ with col2:
         height: 100px;
         font-size: 10vh;  /* Font size based on 10% of the container height */
     """
-    sybil_data = data_main.loc[data_main['status']=='Sybil']['amountUSD'].sum()
+    sybil_data = time_data.loc[time_data['status']=='Sybil']['amountUSD'].sum()
 
     sybils_donations_sum = "${:,.2f}".format(sybil_data)
     st.markdown(f'<div style="{box_style}"><p style="color: white; padding-left: 10px;">Amount Donated By Sybils ($)</p><h3 style="padding-left: 10px;color: white;"><b>{sybils_donations_sum}</b></h3></div>', unsafe_allow_html=True)
@@ -165,7 +241,7 @@ with col3:
         height: 100px;
         font-size: 10vh;  /* Font size based on 10% of the container height */
     """
-    unique_voters = data_main.drop_duplicates('voter')
+    unique_voters = round_voter_data.drop_duplicates('voter')
     class_counts = unique_voters['status'].value_counts()
     desired_class_count = class_counts.get('Sybil', 0)
     total_instances = len(unique_voters)
@@ -202,10 +278,10 @@ treemap,time_ = st.columns([30,70])
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Votes/Time
 with time_:
-    time_data['date'] = pd.to_datetime(time_data['date'])
-    df_grouped = time_data.groupby([time_data['date'].dt.date, 'status']).size().unstack(fill_value=0).reset_index()
-    df_long = df_grouped.melt(id_vars='date', value_vars=['Sybil', 'Non-Sybil'], var_name='status', value_name='count')
-    fig = px.area(df_long, x='date', y='count', color='status', title='Sum of Sybil and Non-Sybil Votes per Day',color_discrete_sequence=['#2D3142','#BFC0C0'])
+    time_data['tx_timestamp'] = pd.to_datetime(time_data['tx_timestamp'])
+    df_grouped = time_data.groupby([time_data['tx_timestamp'].dt.date, 'status']).size().unstack(fill_value=0).reset_index()
+    df_long = df_grouped.melt(id_vars='tx_timestamp', value_vars=['Sybil', 'Non-Sybil'], var_name='status', value_name='count')
+    fig = px.area(df_long, x='tx_timestamp', y='count', color='status', title='Sybil and Non-Sybil Votes per Day',color_discrete_sequence=['#2D3142','#BFC0C0'])
 
     fig.update_xaxes(type='category')
     fig.update_traces(mode='lines', stackgroup='one')
@@ -229,7 +305,7 @@ with time_:
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Funding map
 with treemap:
-    data = data_main.loc[data_main['status']=='Sybil']
+    data = round_voter_data.loc[round_voter_data['status']=='Sybil']
     grouped_df = data.groupby('project_title')['amountUSD'].sum().reset_index()
 
 
@@ -241,7 +317,7 @@ with treemap:
 
 
     fig.update_layout(
-        title="Sybil Funding Landscape (USD)",
+        title="Sybil Funding Landscape: Top Projects Breakdown (USD)",
         plot_bgcolor='#FFFFFF',
         paper_bgcolor='#FFFFFF',
         margin=dict(l=0, r=0, t=40, b=0),
@@ -269,7 +345,7 @@ bar,pie = st.columns([70,30])
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 with bar:
-    status_counts = voter_data.groupby(['project_title', 'status']).size().reset_index(name='count')
+    status_counts = time_data.groupby(['project_title', 'status']).size().reset_index(name='count')
     pivot_table = status_counts.pivot_table(index='project_title', columns='status', values='count', fill_value=0)
     pivot_table.reset_index(inplace=True)
     pivot_table.sort_values(by='Sybil',inplace=True, ascending=False)
@@ -334,10 +410,10 @@ with pie:
     labels = ['Sybil', 'Non-Sybil']
 
     try:
-        Sybils = voter_data['status'].value_counts()['Sybil']
+        Sybils = round_voter_data['status'].value_counts()['Sybil']
     except KeyError:
         Sybils = 0
-    Non_sybils = voter_data['status'].value_counts()['Non-Sybil']
+    Non_sybils = round_voter_data['status'].value_counts()['Non-Sybil']
     values = [Sybils,Non_sybils] 
     colors = [palette[1],palette[0]]  
 
@@ -346,12 +422,13 @@ with pie:
 
     center_text = f'<b>{sum(values)}</b><br>Total Voters'
     fig.update_layout(
-        title='Votes Percentages',
+        title='Votes Distribution: Sybil vs. Non-Sybil',
         margin=dict(t=80, b=60, l=80, r=80),
         legend=dict(orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.3), 
         annotations=[dict(text=center_text, showarrow=False, x=0.5, y=0.5)],
         font=dict(size=14)
     )
+    
     fig.update_layout(plot_bgcolor='#FFFFFF', paper_bgcolor='#FFFFFF',height=500)
     st.markdown(f"""
     <style>
@@ -370,7 +447,7 @@ globe = st.container()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 with globe:
     option = st.selectbox('Select a Project', time_data['project_title'].unique(), index=0, key='selectbox')
-    project_data = data_main.loc[data_main['project_title'] == option]
+    project_data = round_voter_data.loc[round_voter_data['project_title'] == option]
 
     try:
         Sybils = project_data['status'].value_counts()['Sybil']
@@ -406,7 +483,7 @@ with globe:
     )
     fig.update_layout(margin=dict(l=0, r=0, t=60, b=20))
     fig.update_layout(scene_camera=start_view_angle)
-    fig.update_layout(title="Project Votes Globe Representation")
+    fig.update_layout(title="Voting Status Sphere: Sybil vs. Non-Sybil")
 
 
     st.markdown(f"""
