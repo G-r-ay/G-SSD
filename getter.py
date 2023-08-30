@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
-from data_preprocessing import getData,label_dataframe
+from data_preprocessing import preprocess_data,merger,getData,label_dataframe
+from similarity_code import address_similarity
 import streamlit as st
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -42,3 +43,11 @@ def get_labelled_existing(round_id):
     return labelled_data,sybil_addresses
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def get_voter_data(round_data,round_id):
+    processed_data = preprocess_data(round_data)
+    existing_data = get_existing_user_round_data(round_id)
+    fit_data = merger(existing_data,processed_data)
+    sybil_addresses = address_similarity(fit_data,round_id)
+    labelled_data = label_dataframe(round_data,sybil_addresses)
+    return labelled_data,sybil_addresses
+

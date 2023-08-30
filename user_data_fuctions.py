@@ -11,7 +11,7 @@ from requests.exceptions import ConnectionError, Timeout, JSONDecodeError
 #---------------------------------------------------------------------------------------------------------------
 colavent_api_key = st.secrets['colavent_api_key']
 
-api_key= st.secrets["api_key"]
+api_key= st.secrets["api_key2"]
 #---------------------------------------------------------------------------------------------------------------
 url = "https://api-optimistic.etherscan.io/api"
 
@@ -114,7 +114,7 @@ def get_suppler_contract(address):
 
 def get_wallet_age(history: list[dict]):
     if len(history) > 0:
-        creation_time = int(history[0]['timeStamp']) #type:ignore
+        creation_time = int(history[0]['timeStamp'])
         creation_date = datetime.datetime.fromtimestamp(creation_time).date()
         current_date = datetime.date.today()
         wallet_age = (current_date - creation_date).days
@@ -155,66 +155,44 @@ def fetch(address, nested_list):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def compile_data(addresses,round_id,existing_data):
-    batch_size = 100  # Adjust the batch size as needed
     total_items = len(addresses)
-    num_batches = (total_items + batch_size - 1) // batch_size  # Calculate the number of batches
-
     headers = ['voter', 'txn_count', 'Wallet_Age', 'Wallet_Age(Erc20)', 'to_count', 'from_count', 'erc_to', 'erc_from', 'first_date', 'last_date', 'first_from', 'first_to', 'last_from', 'last_to']
     contents = []
-
-    print('Starting')
     my_bar = st.progress(0)
-    for batch_number in range(num_batches):
-        start_idx = batch_number * batch_size
-        end_idx = min((batch_number + 1) * batch_size, total_items)
-        batch_addresses = addresses[start_idx:end_idx]        
-        for count, address in enumerate(batch_addresses, start=start_idx + 1):
-            try:
-                fetch(address, contents)
-                time.sleep(0.5)
-            except (ConnectionError, Timeout, http.client.RemoteDisconnected, TypeError, JSONDecodeError) as e:
-                print(f'Failed to fetch data for {address}: Error Type {e}')
-                break
-        batch_progress = int((batch_number + 1) * 100 / num_batches)
-        progress_text = f"Processing batches: {batch_number + 1}/{num_batches}"
-        my_bar.progress(batch_progress, progress_text)
-
-        print('Saving batch data')
-        new_data_df = pd.DataFrame(contents, columns=headers)
-        update_repo_data(round_id, new_data_df, existing_data)
+    for count, address in enumerate(addresses, start=1):
+        try:
+            fetch(address, contents)
+            progress = int((count) / total_items * total_items)
+            progress_text = f"Processing batches: {count}/{total_items}"
+            my_bar.progress(progress, progress_text)
+        except (ConnectionError, Timeout, http.client.RemoteDisconnected, TypeError, JSONDecodeError) as e:
+            print(f'Failed to fetch data for {address}: Error Type {e}')
+            break
     my_bar.empty()
+    new_data_df = pd.DataFrame(contents, columns=headers)
+    update_repo_data(round_id, new_data_df, existing_data)
 
 
 def get_dates(hashes, round_id):
-    batch_size = 100  # Adjust the batch size as needed
     total_items = len(hashes)
-    num_batches = (total_items + batch_size - 1) // batch_size  # Calculate the number of batches
-
     contents = []
-
-    print('Starting')
     my_bar = st.progress(0)
-    for batch_number in range(num_batches):
-        start_idx = batch_number * batch_size
-        end_idx = min((batch_number + 1) * batch_size, total_items)
-        batch_addresses = hashes[start_idx:end_idx]
-        for count, tx_hash in enumerate(batch_addresses, start=start_idx+1):
-            try:
-                url = f"https://api.covalenthq.com/v1/optimism-mainnet/transaction_v2/{tx_hash}/?"
-                headers = {
-                    "accept": "application/json",
-                }
-                basic = HTTPBasicAuth(colavent_api_key, '')
-                response = requests.get(url, headers=headers, auth=basic).json()['data']['items'][0]['block_signed_at']
-                contents.append([tx_hash, response])
-            except (ConnectionError, Timeout, http.client.RemoteDisconnected, TypeError, JSONDecodeError) as e:
-                print(f'Failed to fetch data for {tx_hash}: Error Type {e}')
-                break
-        batch_progress = int((batch_number + 1) * 100 / num_batches)
-        progress_text = f"Processing batches: {batch_number + 1}/{num_batches}"
-        my_bar.progress(batch_progress, progress_text)
-        print('saving dates')
-        headers = ['transaction', 'date']
+    for count, tx_hash in enumerate(hashes, start=1):
+        try:
+            url = f"https://api.covalenthq.com/v1/optimism-mainnet/transaction_v2/{tx_hash}/?"
+            headers = {
+                "accept": "application/json",
+            }
+            basic = HTTPBasicAuth(colavent_api_key, '')
+            response = requests.get(url, headers=headers, auth=basic).json()['data']['items'][0]['block_signed_at']
+            contents.append([tx_hash, response])
+            progress = int((count) / total_items * total_items)
+            progress_text = f"Processing batches: {count}/{total_items}"
+            my_bar.progress(progress, progress_text)
+        except (ConnectionError, Timeout, http.client.RemoteDisconnected, TypeError, JSONDecodeError) as e:
+            print(f'Failed to fetch data for {tx_hash}: Error Type {e}')
+            break
+        headers = ['transaction', 'tx_timestamp']
         new_dates = pd.DataFrame(contents, columns=headers)
         update_round_time_data(round_id, new_dates)
     my_bar.empty()

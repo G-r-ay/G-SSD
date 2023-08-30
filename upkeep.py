@@ -11,13 +11,14 @@ def performUpKeep(updates,processed_data,round_id,existing_data):
     s_address = address_similarity(fit_data,round_id)
     return s_address
 #---------------------------------------------------------------------------------------------------------------
-def checkUpKeep(round_id):
+def checkVotersUpKeep(round_id):
     raw = getData(round_id)
     processed_data = preprocess_data(raw)
+    print(processed_data.shape)
     existing_data = get_existing_user_round_data(round_id)
     updates = list(set(processed_data['voter'].unique()) - set(existing_data['voter'].unique()))
-
-    if len(updates) > 5:
+    print(len(updates))
+    if len(updates) != 0:
         sybil_addresses = performUpKeep(updates,processed_data,round_id,existing_data)
         labelled_data = label_dataframe(raw,sybil_addresses)
         return labelled_data,sybil_addresses
@@ -26,10 +27,6 @@ def checkUpKeep(round_id):
         labelled_data = label_dataframe(raw,sybil_addresses)
         return labelled_data,sybil_addresses
 #---------------------------------------------------------------------------------------------------------------
-
-
-
-    
 def date_up_keep_update(round_id,sybil_addresses):
     raw = getData(round_id,True)
     existing_data = get_existing_time_data(round_id)
@@ -39,9 +36,4 @@ def date_up_keep_update(round_id,sybil_addresses):
     time_data = pd.merge(raw,existing_data,on='transaction')
     time_data = label_dataframe(time_data,sybil_addresses)
     return time_data
-
-
-
-
-
-
+#---------------------------------------------------------------------------------------------------------------
