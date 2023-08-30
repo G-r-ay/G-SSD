@@ -76,32 +76,6 @@ if st.sidebar.button("Web3 Open Source Software", use_container_width=True):
 if st.sidebar.button("Web3 Community and Education", use_container_width=True):
     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
     st.session_state.selected_round = "Web3 Community and Education "
-
-# if st.sidebar.button("Global Chinese Community for Public Goods", use_container_width=True):
-#     st.session_state.selected_round = "Global Chinese Community for Public Goods - GR18"
-
-# if st.sidebar.button("Web3 Social", use_container_width=True):
-#     st.session_state.selected_round = "Web3 Social"
-
-# if st.sidebar.button("Zuzalu Continuous Innovation", use_container_width=True):
-#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-#     st.session_state.selected_round = "Zuzalu Continuous Innovation"
-
-# if st.sidebar.button("Meta Pool LatAm GG18", use_container_width=True):
-#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-#     st.session_state.selected_round = "Meta Pool LatAm GG18"
-
-# if st.sidebar.button("Ethereum Infrastructure", use_container_width=True):
-#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-#     st.session_state.selected_round = "Ethereum Infrastructure"
-
-# if st.sidebar.button("Arbitrum Domain Round", use_container_width=True):
-#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-#     st.session_state.selected_round = "Arbitrum Domain Round"
-
-# if st.sidebar.button("ReFi DAO Local Node", use_container_width=True):
-#     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
-#     st.session_state.selected_round = "ReFi DAO Local Node"
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Defaults and Selections
 round_id = st.session_state.round_id
@@ -140,7 +114,7 @@ if round_status == 'Active':
 else:
     @st.cache_data
     def get_gr18_data():
-        data = pd.read_csv('gg18_votes.csv')
+        data = pd.read_parquet("https://github.com/G-r-ay/G-SSD/raw/main/archives/gg18_data.parquet")
         return data
 
     @st.cache_data
