@@ -53,10 +53,10 @@ st.markdown("🌟 **Empowering Community**\n\n"
 
 #----------------------------
 
-# temp_update = st.sidebar.button("temp_Update", key="temp_update_button", help="Update Round data")
+temp_update = st.sidebar.button("temp_Update", key="temp_update_button", help="Update Round data")
 
-# if temp_update:
-#     round_status = 'Active'
+if temp_update:
+    round_status = 'Active'
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Defaults and Selections
