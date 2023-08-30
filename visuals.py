@@ -69,9 +69,9 @@ if st.sidebar.button("Climate Round", use_container_width=True):
     st.session_state.round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
     st.session_state.selected_round = "Climate Round"
 
-if st.sidebar.button("Web3 Open Source Software", use_container_width=True):
-    st.session_state.round_id = '0x8de918F0163b2021839A8D84954dD7E8e151326D'
-    st.session_state.selected_round = "Web3 Open Source Software"
+# if st.sidebar.button("Web3 Open Source Software", use_container_width=True):
+#     st.session_state.round_id = '0x8de918F0163b2021839A8D84954dD7E8e151326D'
+#     st.session_state.selected_round = "Web3 Open Source Software"
 
 if st.sidebar.button("Web3 Community and Education", use_container_width=True):
     st.session_state.round_id = '0x2871742B184633f8DC8546c6301cbC209945033e'
