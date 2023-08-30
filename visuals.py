@@ -51,13 +51,6 @@ st.markdown("🎯 **Purpose**\n\n"
 st.markdown("🌟 **Empowering Community**\n\n"
             "G-SSD goes beyond data – it's about building a stronger community. By offering a comprehensive view of Sybil attack effects, G-SSD enables operators to fine-tune their strategies and voters to see their influence. Join us in unraveling the story behind Sybil attacks and fortifying our decentralized landscape!")
 
-#----------------------------
-
-temp_update = st.sidebar.button("temp_Update", key="temp_update_button", help="Update Round data")
-
-if temp_update:
-    round_status = 'Active'
-
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Defaults and Selections
 if 'selected_round' not in st.session_state:
