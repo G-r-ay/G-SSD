@@ -27,13 +27,6 @@ def address_similarity(full_data,round_id):
             if similar_row_values not in similar_rows:
                 similar_rows.append(similar_row_values)
     for i, row_group in enumerate(similar_rows):
-        print(columns)
-        print(f"Similar Row Group {i}:")
-        for row in row_group:
-            print(row[0], row[1:])
-        print()
-
-    for i, row_group in enumerate(similar_rows):
         cluster_group = []
         for row in row_group:
             cluster_group.append(row[0])
