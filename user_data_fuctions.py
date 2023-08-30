@@ -11,7 +11,7 @@ from requests.exceptions import ConnectionError, Timeout, JSONDecodeError
 #---------------------------------------------------------------------------------------------------------------
 colavent_api_key = st.secrets['colavent_api_key']
 
-api_key= st.secrets["api_key2"]
+api_key= st.secrets["api_key"]
 #---------------------------------------------------------------------------------------------------------------
 url = "https://api-optimistic.etherscan.io/api"
 
