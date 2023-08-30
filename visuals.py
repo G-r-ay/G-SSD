@@ -61,8 +61,8 @@ if temp_update:
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #Defaults and Selections
 if 'selected_round' not in st.session_state:
-    st.session_state.round_id = '0x8de918F0163b2021839A8D84954dD7E8e151326D'
-    st.session_state.selected_round = "Web3 Open Source Software"
+    st.session_state.round_id = '0xb6Be0eCAfDb66DD848B0480db40056Ff94A9465d'
+    st.session_state.selected_round = "Climate Round"
 
 # Define buttons
 if st.sidebar.button("Climate Round", use_container_width=True):
