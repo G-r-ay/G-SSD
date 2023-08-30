@@ -20,7 +20,7 @@ if 'last_refresh_time' not in st.session_state:
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #page configurations
-st.set_page_config(page_title="G-SSD",layout='wide',page_icon='imgs/G-SSD.png')
+st.set_page_config(page_title="G-SSD",layout='wide',page_icon='https://github.com/G-r-ay/G-SSD/blob/main/imgs/G-SSD..png')
 st.sidebar.title('G_SSD')
 st.sidebar.markdown(
     """
